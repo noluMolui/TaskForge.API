@@ -74,5 +74,27 @@ router.delete('/:id', (req, res) => {
   tasks.splice(index, 1);
   res.status(204).send();
 });
+// GET /tasks/:id/verify - Simulate a slow external check using async/await
+router.get('/:id/verify', async (req, res) => {
+  try {
+    const task = tasks.find((t) => t.id === req.params.id);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    // Simulate a slow external check (delayed by 1.5 seconds)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Check if the task is missing the required title
+    if (!task.title) {
+      return res.status(400).json({ error: 'Verification failed: Task is missing a required title' });
+    }
+
+    res.json({ message: 'Task verified successfully', task });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error during verification' });
+  }
+});
+
 
 export default router;
