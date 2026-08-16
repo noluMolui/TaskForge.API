@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TaskForge API Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f9; }
+    h1 { color: #333; }
+    ul { list-style: none; padding: 0; }
+    li { background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h1>TaskForge Tasks</h1>
+  <ul id="task-list">Loading tasks from API...</ul>
+
+  <script>
+    async function fetchTasks() {
+      try {
+        const response = await fetch('/tasks');
+        const tasks = await response.json();
+        const list = document.getElementById('task-list');
+        
+        if (tasks.length === 0) {
+          list.innerHTML = '<li>No tasks found.</li>';
+          return;
+        }
+
+        list.innerHTML = tasks.map(t => `
+          <li>
+            <strong>ID:</strong> ${t.id} <br>
+            <strong>Title:</strong> ${t.title || '<span style="color:red;">[No Title - Broken Task]</span>'} <br>
+            <strong>Completed:</strong> ${t.completed ? 'Yes' : 'No'} <br>
+            <strong>Created At:</strong> ${t.createdAt || 'N/A'}
+          </li>
+        `).join('');
+      } catch (err) {
+        document.getElementById('task-list').innerHTML = '<li style="color:red;">Failed to load tasks.</li>';
+      }
+    }
+    fetchTasks();
+  </script>
+</body>
+</html>
